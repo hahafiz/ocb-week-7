@@ -1,27 +1,15 @@
-// fetch("https://jsonplaceholder.typicode.com/todos/")
-//   .then((response) => response.json()) // convert raw data to json format
-//   .then((body) => {
-//     const todoList = body.map((todo) => `<li> ${todo.title}</li>`);
-//     return todoList;
-//   })
-//   .then((todoList) => {
-//     // to display data to <div> id="app"></div>
-//     document.getElementById("app").innerHTML = todoList;
-//   })
-//   .catch((err) => {
-//     debugger;
-//   });
-fetch("https://jsonplaceholder.typicode.com/todos/")
+var API_KEY = "4494972-80e7da1d13b6a392e3f55474e";
+
+fetch("https://pixabay.com/api/?key=" + API_KEY)
   .then((response) => response.json())
   .then((body) => {
-    const todoList = body.map((todo) => `<li> ${todo.title}</li>`);
     // debugger;
-    return todoList;
+    const imgList = body.hits
+      .map((photo) => `<img src="${photo.webformatURL}" alt="${photo.tags}"/>`)
+      .join(""); // Use join to convert array to string
+    // debugger;
+    document.getElementById("app").innerHTML = imgList;
   })
-  .then((todoList) => {
-    // to display data to <div> id="app"></div>
-    document.getElementById("app").innerHTML = todoList;
-  })
-  .catch((err) => {
+  .catch((error) => {
     debugger;
   });
