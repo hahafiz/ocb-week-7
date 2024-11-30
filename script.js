@@ -2,8 +2,13 @@
 window.addEventListener("scroll", function () {
   const headerContainer = document.getElementById("header-container");
   const headerAnimation = document.getElementById("header-animation");
-  const searchContainer = document.getElementById("search-filter-container");
-  const gallery = document.getElementById("galler");
+  const searchContainerAbsolute = document.getElementById(
+    "search-filter-container-absolute"
+  );
+  const searchContainerSticky = document.getElementById(
+    "search-filter-container-sticky"
+  );
+  // const gallery = document.getElementById("gallery");
   const scrollPosition = window.scrollY;
 
   // Calculate the blur amount based on scroll position
@@ -21,13 +26,13 @@ window.addEventListener("scroll", function () {
   // get the top position of the gallery
   const galleryTop = gallery.getBoundingClientRect().top;
 
-  if (galleryTop < 0) {
-    // when gallery scrolls up, make search container sticky
-    searchContainer.style.position = "sticky";
-    searchContainer.style.top = "0";
+  // switch visibility of search containers
+  if (scrollPosition < 350) {
+    searchContainerAbsolute.style.display = "block";
+    searchContainerSticky.style.display = "none";
   } else {
-    // when gallery is still visible, keep search container relative
-    searchContainer.style.position = "absolute";
+    searchContainerAbsolute.style.display = "none";
+    searchContainerSticky.style.display = "block";
   }
 });
 

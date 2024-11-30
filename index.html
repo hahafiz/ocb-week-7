@@ -20,8 +20,9 @@
         <div id="header-animation">
           <h1 class="display-1">Pixabay API Photo Gallery</h1>
           <p>
-            This is a photo gallery using Pixabay API with Bootstrap. Keep
-            scrolling down to view more images
+            This is a photo gallery using Pixabay API with Bootstrap. All images
+            are not mine and credits to their owners and Pixabay. <br />
+            Keep scrolling down to view more images
           </p>
           <br />
           <figcaption class="blockquote-footer">By: Qamarul Hafiz</figcaption>
@@ -29,7 +30,34 @@
       </div>
     </div>
 
-    <div id="search-filter-container">
+    <!-- SEARCH ABSOLUTE -->
+    <div id="search-filter-container-absolute" class="search-container">
+      <div class="container">
+        <div class="d-flex" role="search">
+          <input
+            class="form-control me-2"
+            type="search"
+            placeholder="Search"
+            aria-label="Search"
+            id="search-input"
+          />
+          <button
+            class="btn btn-outline-light"
+            type="submit"
+            id="search-button"
+          >
+            Search
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH STICKY -->
+    <div
+      id="search-filter-container-sticky"
+      class="search-container"
+      style="display: none"
+    >
       <div class="container">
         <div class="d-flex" role="search">
           <input

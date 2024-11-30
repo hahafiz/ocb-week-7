@@ -68,11 +68,25 @@
   margin-bottom: 10px;
 }
 
-/* to be fixed */
-#search-filter-container {
-  position: absolute;
-  top: 0;
+.search-container {
+  width: 100%;
   z-index: 10;
-  background: linear-gradient(to bottom, rgb(0, 0, 0), rgba(0, 0, 0, 0));
   padding: 32px 0;
+}
+
+#search-filter-container-absolute {
+  position: absolute;
+  top: 35vh;
+  /* background: linear-gradient(to bottom, rgb(0, 0, 0), rgba(0, 0, 0, 0)); */
+}
+
+#search-filter-container-sticky {
+  position: sticky;
+  top: 1vh;
+  /* background: linear-gradient(to bottom, rgb(0, 0, 0), rgba(0, 0, 0, 0)); */
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
 }
