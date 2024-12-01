@@ -1,6 +1,8 @@
 let page = 1;
 let isLoading = false;
+let currentSearchTerm = ""; // to store the search term
 const API_KEY = "4494972-80e7da1d13b6a392e3f55474e";
+const IMAGES_PER_PAGE = 15;
 
 function createLoadingSpinner() {
   const spinner = document.createElement("div");
@@ -19,60 +21,126 @@ function removeLoadingSpinner() {
   if (spinner) spinner.remove();
 }
 
-function fetchImages(pageNum) {
+function renderImages(images) {
+  const imgList = images
+    .map(
+      (photo) =>
+        `<div class="col image-hover-container">
+          <div class="position-relative">
+            <img src="${photo.webformatURL}" alt="${photo.tags}" class="card-img-top rounded img-fluid"/>
+            <div class="image-overlay">
+              <div class="overlay-content">
+                <img src="${photo.userImageURL}" alt="${photo.user}" class="rounded-circle" width="50" height="50" />
+                <p class="author">By: ${photo.user}</p>
+                <a href="${photo.pageURL}" target="_blank" class="btn btn-sm btn-light">View on Pixabay</a>
+              </div>
+            </div>
+          </div>
+        </div>`
+    )
+    .join(""); // Use join to convert array to string
+
+  const appContainer = document.getElementById("app");
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = imgList;
+
+  const newImages = Array.from(tempDiv.children);
+  newImages.forEach((img) => appContainer.appendChild(img));
+
+  // Reinitialize Masonry and imagesLoaded
+  var grid = document.querySelector("#app");
+  imagesLoaded(grid, function () {
+    new Masonry(grid, {
+      itemSelector: ".col",
+      percentPosition: true,
+    });
+
+    removeLoadingSpinner();
+    isLoading = false;
+  });
+}
+
+async function fetchPixabayImages(pageNum, searchTerm = "") {
+  // Prevent multiple simultaneous requests
+  if (isLoading) return;
+
   isLoading = true;
   createLoadingSpinner();
 
-  fetch(`https://pixabay.com/api/?key=${API_KEY}&page=${pageNum}&per_page=15`)
-    .then((response) => response.json())
-    .then((body) => {
-      const imgList = body.hits
-        .map(
-          (photo) =>
-            `<div class="col image-hover-container">
-            <div class="position-relative">
-              <img src="${photo.webformatURL}" alt="${photo.tags}" class="card-img-top rounded img-fluid"/>
-              <div class="image-overlay">
-                <div class="overlay-content">
-                  <img src="${photo.userImageURL}" alt="${photo.user}" class="rounded-circle" width="50" height="50" />
-                  <p class="author">By: ${photo.user}</p>
-                  <a href="${photo.pageURL}" target="_blank" class="btn btn-sm btn-light">View on Pixabay</a>
-                </div>
-              </div>
-            </div>
-          </div>`
-        )
-        .join(""); // Use join to convert array to string
+  try {
+    const url = new URL("https://pixabay.com/api/");
+    url.searchParams.set("key", API_KEY);
+    url.searchParams.set("page", pageNum);
+    url.searchParams.set("per_page", IMAGES_PER_PAGE);
 
-      const appContainer = document.getElementById("app");
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = imgList;
+    // add search term if provided
+    if (searchTerm) {
+      url.searchParams.set("q", searchTerm);
+    }
 
-      const newImages = Array.from(tempDiv.children);
-      newImages.forEach((img) => appContainer.appendChild(img));
+    const response = await fetch(url);
+    const body = await response.json();
 
-      // reinitialize Masonry and imagesLoaded
-      var grid = document.querySelector("#app");
+    // clear existing content only on first page
+    if (pageNum === 1) {
+      document.getElementById("app").innerHTML = "";
+    }
 
-      imagesLoaded(grid, function () {
-        new Masonry(grid, {
-          itemSelector: ".col",
-          percentPosition: true,
-        });
+    // render images
+    renderImages(body.hits);
+  } catch (error) {
+    console.log("Error fetching images: ", error);
+    removeLoadingSpinner();
+    isLoading = false;
+  }
+}
 
-        removeLoadingSpinner();
-        isLoading = false;
-      });
-    })
-    .catch((error) => {
-      console.error("Error fetching data: ", error);
-      removeLoadingSpinner();
-      isLoading = false;
-    });
+function searchImages() {
+  // get current search term from either input field
+  const newSearchTerm =
+    document.getElementById("search-input").value.trim() ||
+    document.getElementById("search-input-sticky").value.trim();
+
+  // update the current search term
+  currentSearchTerm = newSearchTerm;
+
+  // sync search term to both search inputs
+  document.getElementById("search-input").value = currentSearchTerm;
+  document.getElementById("search-input-sticky").value = currentSearchTerm;
+
+  // reset page and fetch images with search term
+  page = 1;
+  fetchPixabayImages(page, currentSearchTerm);
+
+  // reset scroll position
+  window.scrollTo(0, 0);
 }
 
 // Initial Load
-fetchImages(page);
+fetchPixabayImages(page);
+
+// search bar event listeners
+document
+  .getElementById("search-button")
+  .addEventListener("click", searchImages);
+document
+  .getElementById("search-input")
+  .addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      searchImages();
+    }
+  });
+
+document
+  .getElementById("search-button-sticky")
+  .addEventListener("click", searchImages);
+document
+  .getElementById("search-input-sticky")
+  .addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      searchImages();
+    }
+  });
 
 // Infinite scroll
 window.addEventListener("scroll", () => {
@@ -80,7 +148,7 @@ window.addEventListener("scroll", () => {
 
   if (scrollTop + clientHeight >= scrollHeight - 5 && !isLoading) {
     page++;
-    fetchImages(page);
+    fetchPixabayImages(page, currentSearchTerm);
   }
 });
 
